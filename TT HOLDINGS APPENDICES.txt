@@ -1,0 +1,575 @@
+DATABASE AND TABLE(S) CREATION:
+
+mysql> CREATE DATABASE TT_HOLDINGS;
+Query OK, 1 row affected (0.03 sec)
+
+mysql> USE TT_HOLDINGS;
+Database changed
+mysql> CREATE TABLE Person (
+    ->     PersonID INT PRIMARY KEY,
+    ->     Name VARCHAR(100),
+    ->     Address VARCHAR(200),
+    ->     PhoneNumber VARCHAR(15),
+    ->     BirthDate DATE
+    -> );
+Query OK, 0 rows affected (0.08 sec)
+
+mysql> CREATE TABLE Organization (
+    ->     OrgID INT PRIMARY KEY,
+    ->     Name VARCHAR(100),
+    ->     Address VARCHAR(200),
+    ->     PhoneNumber VARCHAR(15),
+    ->     BudgetNumber VARCHAR(50)
+    -> );
+Query OK, 0 rows affected (0.06 sec)
+
+mysql> CREATE TABLE Employment (
+    ->     EmploymentID INT PRIMARY KEY,
+    ->     PersonID INT,
+    ->     OrgID INT,
+    ->     EmploymentDate DATE,
+    ->     TerminationDate DATE,
+    ->     Bonus DECIMAL(10,2),
+    ->     EmploymentType ENUM('Permanent', 'Part-Time'),
+    ->     FOREIGN KEY (PersonID) REFERENCES Person(PersonID),
+    ->     FOREIGN KEY (OrgID) REFERENCES Organization(OrgID)
+    -> );
+Query OK, 0 rows affected (0.09 sec)
+
+mysql> CREATE TABLE Position (
+    ->     PositionID INT PRIMARY KEY,
+    ->     OrgID INT,
+    ->     Title VARCHAR(100),
+    ->     FOREIGN KEY (OrgID) REFERENCES Organization(OrgID)
+    -> );
+Query OK, 0 rows affected (0.08 sec)
+
+mysql> CREATE TABLE PositionAssignment (
+    ->     AssignmentID INT PRIMARY KEY,
+    ->     EmploymentID INT,
+    ->     PositionID INT,
+    ->     StartDate DATE,
+    ->     TerminationDate DATE,
+    ->     Salary DECIMAL(10,2),
+    ->     FOREIGN KEY (EmploymentID) REFERENCES Employment(EmploymentID),
+    ->     FOREIGN KEY (PositionID) REFERENCES `Position`(PositionID)  -- Use backticks to escape the table name
+    -> );
+Query OK, 0 rows affected (0.09 sec)
+
+mysql> SHOW TABLES;
++-----------------------+
+| Tables_in_tt_holdings |
++-----------------------+
+| employment            |
+| organization          |
+| person                |
+| position              |
+| positionAssignment    |
++-----------------------+
+5 rows in set (0.01 sec)
+
+
+
+INSERTING INTO TABLES:
+
+mysql> INSERT INTO Person (PersonID, Name, Address, PhoneNumber, BirthDate) VALUES
+    -> (101, 'Thabo Mokoena', '45 Main St, Maseru', '5544-1234', '1985-03-15'),
+    -> (102, 'Lerato Khumalo', '23 Kingsway, Maseru', '5544-2345', '1990-06-22'),
+    -> (103, 'Kamohelo Mofolo', '12 St Joseph St, Maseru', '5544-3456', '1988-11-30'),
+    -> (104, 'Anele Mohapi', '78 Independence Ave, Maseru', '5544-4567', '1987-05-05'),
+    -> (105, 'Palesa Moleleki', '56 Hlalele Ave, Maseru', '5544-5678', '1993-02-22'),
+    -> (106, 'Karabo Thoka', '31 Makoanyane, Maseru', '5544-6789', '1995-01-12'),
+    -> (107, 'Mpho Ntebelang', '89 Setsoto St, Maseru', '5544-7890', '1986-04-04'),
+    -> (108, 'Tshepo Mohale', '24 Liphakoe Rd, Maseru', '5544-8901', '1992-07-13'),
+    -> (109, 'Nthabiseng Rantao', '7 Batho Lane, Maseru', '5544-9012', '1989-08-18'),
+    -> (110, 'Lerato Monaheng', '90 Ramokhele St, Maseru', '5544-1012', '1991-09-21'),
+    -> (111, 'Tebello Mojapelo', '14 Makhulong, Maseru', '5544-1113', '1984-12-01'),
+    -> (112, 'Bohloko Phetolo', '33 Kotsi St, Maseru', '5544-1214', '1994-10-30');
+Query OK, 12 rows affected (0.03 sec)
+Records: 12  Duplicates: 0  Warnings: 0
+
+mysql> INSERT INTO Organization (OrgID, Name, Address, PhoneNumber, BudgetNumber) VALUES
+    -> (111, 'BASOTHO CONSULTING', '4 MAFETENG RD, MASERU', '5544-1233', 'BUD10001'),
+    -> (222, 'LESOTHO MINING CO.', '13 THABONG, MASERU', '5544-2233', 'BUD10002'),
+    -> (333, 'MOKHOTLONG AGRICULTURE', '56 A MANGATA RD, MOKHOTLONG', '5544-3233', 'BUD10003'),
+    -> (444, 'LERIBE CONSTRUCTION', '34 SEQONE ST, LERIBE', '5544-4233', 'BUD10004'),
+    -> (555, 'TEYATEYANENG TEXTILES', '23 MOHLAKENG RD, TEYATEYANENG', '5544-5233', 'BUD10005'),
+    -> (666, 'MASOWE TRANSPORT', '22 HA MATELA, MASERU', '5544-6233', 'BUD10006'),
+    -> (777, 'PHUTHANANG HEALTH SERVICES', '7 MASERU RD, MOHALE’S HOEK', '5544-7233', 'BUD10007'),
+    -> (888, 'MALIBA TELECOM', '8 TLASENG, MASERU', '5544-8233', 'BUD10008'),
+    -> (999, 'LESOTHO TOURISM BOARD', '99 HA MATELA, MASERU', '5544-9233', 'BUD10009'),
+    -> (1010, 'MOKHOTLONG TECH SOLUTIONS', '10 MAIN ST, MOKHOTLONG', '5544-1023', 'BUD10010');
+Query OK, 10 rows affected (0.01 sec)
+Records: 10  Duplicates: 0  Warnings: 0
+
+mysql> INSERT INTO Employment (EmploymentID, PersonID, OrgID, EmploymentDate, TerminationDate, Bonus, EmploymentType) VALUES
+    -> (1001, 101, 111, '2021-01-01', NULL, 5000.00, 'PERMANENT'),
+    -> (1002, 102, 222, '2020-06-15', NULL, 3000.00, 'PERMANENT'),
+    -> (1003, 103, 333, '2022-03-10', NULL, 4000.00, 'PART-TIME'),
+    -> (1004, 104, 444, '2019-12-20', NULL, 4500.00, 'PERMANENT'),
+    -> (1005, 105, 555, '2022-01-15', NULL, 2500.00, 'PART-TIME'),
+    -> (1006, 106, 666, '2021-11-05', NULL, 3700.00, 'PERMANENT'),
+    -> (1007, 107, 777, '2020-04-12', NULL, 3800.00, 'PERMANENT'),
+    -> (1008, 108, 888, '2019-08-01', NULL, 4200.00, 'PART-TIME'),
+    -> (1009, 109, 999, '2022-02-14', NULL, 5100.00, 'PERMANENT'),
+    -> (1010, 110, 1010, '2020-07-19', NULL, 5300.00, 'PART-TIME'),
+    -> (1011, 111, 111, '2021-05-30', NULL, 6200.00, 'PERMANENT'),
+    -> (1012, 112, 222, '2022-04-22', NULL, 3100.00, 'PART-TIME');
+Query OK, 12 rows affected (0.07 sec)
+Records: 12  Duplicates: 0  Warnings: 0
+
+mysql> INSERT INTO Position (PositionID, OrgID, Title) VALUES
+    -> (1, 111, 'CONSULTANT'),
+    -> (2, 222, 'GEOLOGIST'),
+    -> (3, 333, 'FARMER'),
+    -> (4, 444, 'CONSTRUCTION WORKER'),
+    -> (5, 555, 'TEXTILE DESIGNER'),
+    -> (6, 666, 'LOGISTICS MANAGER'),
+    -> (7, 777, 'HEALTH SPECIALIST'),
+    -> (8, 888, 'NETWORK ENGINEER'),
+    -> (9, 999, 'TOURISM OFFICER'),
+    -> (10, 1010, 'IT TECHNICIAN');
+Query OK, 10 rows affected (0.02 sec)
+Records: 10  Duplicates: 0  Warnings: 0
+
+mysql> INSERT INTO PositionAssignment (AssignmentID, EmploymentID, PositionID, StartDate, TerminationDate, Salary) VALUES
+    -> (1, 1001, 1, '2021-01-02', NULL, 60000.00),
+    -> (2, 1002, 2, '2020-06-16', NULL, 45000.00),
+    -> (3, 1003, 3, '2022-03-11', NULL, 35000.00),
+    -> (4, 1004, 4, '2019-12-21', NULL, 47000.00),
+    -> (5, 1005, 5, '2022-01-16', NULL, 32000.00),
+    -> (6, 1006, 6, '2021-11-06', NULL, 39000.00),
+    -> (7, 1007, 7, '2020-04-13', NULL, 40000.00),
+    -> (8, 1008, 8, '2019-08-02', NULL, 37000.00),
+    -> (9, 1009, 9, '2022-02-15', NULL, 44000.00),
+    -> (10, 1010, 10, '2020-07-20', NULL, 48000.00);
+Query OK, 10 rows affected (0.01 sec)
+Records: 10  Duplicates: 0  Warnings: 0
+
+mysql> SELECT * FROM PERSON;
++----------+-------------------+-----------------------------+-------------+------------+
+| PersonID | Name              | Address                     | PhoneNumber | BirthDate  |
++----------+-------------------+-----------------------------+-------------+------------+
+|      101 | Thabo Mokoena     | 45 Main St, Maseru          | 5544-1234   | 1985-03-15 |
+|      102 | Lerato Khumalo    | 23 Kingsway, Maseru         | 5544-2345   | 1990-06-22 |
+|      103 | Kamohelo Mofolo   | 12 St Joseph St, Maseru     | 5544-3456   | 1988-11-30 |
+|      104 | Anele Mohapi      | 78 Independence Ave, Maseru | 5544-4567   | 1987-05-05 |
+|      105 | Palesa Moleleki   | 56 Hlalele Ave, Maseru      | 5544-5678   | 1993-02-22 |
+|      106 | Karabo Thoka      | 31 Makoanyane, Maseru       | 5544-6789   | 1995-01-12 |
+|      107 | Mpho Ntebelang    | 89 Setsoto St, Maseru       | 5544-7890   | 1986-04-04 |
+|      108 | Tshepo Mohale     | 24 Liphakoe Rd, Maseru      | 5544-8901   | 1992-07-13 |
+|      109 | Nthabiseng Rantao | 7 Batho Lane, Maseru        | 5544-9012   | 1989-08-18 |
+|      110 | Lerato Monaheng   | 90 Ramokhele St, Maseru     | 5544-1012   | 1991-09-21 |
+|      111 | Tebello Mojapelo  | 14 Makhulong, Maseru        | 5544-1113   | 1984-12-01 |
+|      112 | Bohloko Phetolo   | 33 Kotsi St, Maseru         | 5544-1214   | 1994-10-30 |
++----------+-------------------+-----------------------------+-------------+------------+
+12 rows in set (0.00 sec)
+
+mysql> SELECT * FROM ORGANIZATION;
++-------+----------------------------+-------------------------------+-------------+--------------+
+| OrgID | Name                       | Address                       | PhoneNumber | BudgetNumber |
++-------+----------------------------+-------------------------------+-------------+--------------+
+|   111 | BASOTHO CONSULTING         | 4 MAFETENG RD, MASERU         | 5544-1233   | BUD10001     |
+|   222 | LESOTHO MINING CO.         | 13 THABONG, MASERU            | 5544-2233   | BUD10002     |
+|   333 | MOKHOTLONG AGRICULTURE     | 56 A MANGATA RD, MOKHOTLONG   | 5544-3233   | BUD10003     |
+|   444 | LERIBE CONSTRUCTION        | 34 SEQONE ST, LERIBE          | 5544-4233   | BUD10004     |
+|   555 | TEYATEYANENG TEXTILES      | 23 MOHLAKENG RD, TEYATEYANENG | 5544-5233   | BUD10005     |
+|   666 | MASOWE TRANSPORT           | 22 HA MATELA, MASERU          | 5544-6233   | BUD10006     |
+|   777 | PHUTHANANG HEALTH SERVICES | 7 MASERU RD, MOHALE'S HOEK    | 5544-7233   | BUD10007     |
+|   888 | MALIBA TELECOM             | 8 TLASENG, MASERU             | 5544-8233   | BUD10008     |
+|   999 | LESOTHO TOURISM BOARD      | 99 HA MATELA, MASERU          | 5544-9233   | BUD10009     |
+|  1010 | MOKHOTLONG TECH SOLUTIONS  | 10 MAIN ST, MOKHOTLONG        | 5544-1023   | BUD10010     |
++-------+----------------------------+-------------------------------+-------------+--------------+
+10 rows in set (0.00 sec)
+
+mysql> SELECT * FROM EMPLOYMENT;
++--------------+----------+-------+----------------+-----------------+---------+----------------+
+| EmploymentID | PersonID | OrgID | EmploymentDate | TerminationDate | Bonus   | EmploymentType |
++--------------+----------+-------+----------------+-----------------+---------+----------------+
+|         1001 |      101 |   111 | 2021-01-01     | NULL            | 5000.00 | Permanent      |
+|         1002 |      102 |   222 | 2020-06-15     | NULL            | 3000.00 | Permanent      |
+|         1003 |      103 |   333 | 2022-03-10     | NULL            | 4000.00 | Part-Time      |
+|         1004 |      104 |   444 | 2019-12-20     | NULL            | 4500.00 | Permanent      |
+|         1005 |      105 |   555 | 2022-01-15     | NULL            | 2500.00 | Part-Time      |
+|         1006 |      106 |   666 | 2021-11-05     | NULL            | 3700.00 | Permanent      |
+|         1007 |      107 |   777 | 2020-04-12     | NULL            | 3800.00 | Permanent      |
+|         1008 |      108 |   888 | 2019-08-01     | NULL            | 4200.00 | Part-Time      |
+|         1009 |      109 |   999 | 2022-02-14     | NULL            | 5100.00 | Permanent      |
+|         1010 |      110 |  1010 | 2020-07-19     | NULL            | 5300.00 | Part-Time      |
+|         1011 |      111 |   111 | 2021-05-30     | NULL            | 6200.00 | Permanent      |
+|         1012 |      112 |   222 | 2022-04-22     | NULL            | 3100.00 | Part-Time      |
++--------------+----------+-------+----------------+-----------------+---------+----------------+
+12 rows in set (0.00 sec)
+
+mysql> SELECT * FROM POSITION;
++------------+-------+---------------------+
+| PositionID | OrgID | Title               |
++------------+-------+---------------------+
+|          1 |   111 | CONSULTANT          |
+|          2 |   222 | GEOLOGIST           |
+|          3 |   333 | FARMER              |
+|          4 |   444 | CONSTRUCTION WORKER |
+|          5 |   555 | TEXTILE DESIGNER    |
+|          6 |   666 | LOGISTICS MANAGER   |
+|          7 |   777 | HEALTH SPECIALIST   |
+|          8 |   888 | NETWORK ENGINEER    |
+|          9 |   999 | TOURISM OFFICER     |
+|         10 |  1010 | IT TECHNICIAN       |
++------------+-------+---------------------+
+10 rows in set (0.00 sec)
+
+mysql> SELECT * FROM POSITIONASSIGNMENT;
++--------------+--------------+------------+------------+-----------------+----------+
+| AssignmentID | EmploymentID | PositionID | StartDate  | TerminationDate | Salary   |
++--------------+--------------+------------+------------+-----------------+----------+
+|            1 |         1001 |          1 | 2021-01-02 | NULL            | 60000.00 |
+|            2 |         1002 |          2 | 2020-06-16 | NULL            | 45000.00 |
+|            3 |         1003 |          3 | 2022-03-11 | NULL            | 35000.00 |
+|            4 |         1004 |          4 | 2019-12-21 | NULL            | 47000.00 |
+|            5 |         1005 |          5 | 2022-01-16 | NULL            | 32000.00 |
+|            6 |         1006 |          6 | 2021-11-06 | NULL            | 39000.00 |
+|            7 |         1007 |          7 | 2020-04-13 | NULL            | 40000.00 |
+|            8 |         1008 |          8 | 2019-08-02 | NULL            | 37000.00 |
+|            9 |         1009 |          9 | 2022-02-15 | NULL            | 44000.00 |
+|           10 |         1010 |         10 | 2020-07-20 | NULL            | 48000.00 |
++--------------+--------------+------------+------------+-----------------+----------+
+10 rows in set (0.00 sec)
+
+
+
+CREATING VIEWS:
+
+mysql> CREATE VIEW ActiveEmployees AS
+    -> SELECT
+    ->     PersonID,
+    ->     Name,
+    ->     Address,
+    ->     PhoneNumber,
+    ->     BirthDate
+    -> FROM
+    ->     Person
+    -> JOIN
+    ->     Employment e ON PersonID = PersonID
+    -> WHERE
+    ->     e.TerminationDate IS NULL;
+Query OK, 0 rows affected (0.02 sec)
+
+mysql> CREATE VIEW EmployeesBornAfter1990 AS
+    -> SELECT
+    ->     PersonID,
+    ->     Name,
+    ->     BirthDate
+    -> FROM
+    ->     Person
+    -> WHERE
+    ->     BirthDate > '1990-01-01';
+Query OK, 0 rows affected (0.02 sec)
+
+mysql> CREATE VIEW OrganizationsInMaseru AS
+    -> SELECT
+    ->     OrgID,
+    ->     Name,
+    ->     Address
+    -> FROM
+    ->     Organization
+    -> WHERE
+    ->     Address LIKE '%Maseru%';
+Query OK, 0 rows affected (0.02 sec)
+
+mysql> CREATE VIEW AllActiveOrganizations AS
+    -> SELECT
+    ->     OrgID,
+    ->     Name,
+    ->     Address,
+    ->     PhoneNumber
+    -> FROM
+    ->     Organization;
+Query OK, 0 rows affected (0.02 sec)
+
+mysql> CREATE VIEW CurrentEmploymentRecords AS
+    -> SELECT
+    ->     e.EmploymentID,
+    ->     e.PersonID,  -- Specify that this is from the Employment table
+    ->     e.EmploymentDate,
+    ->     e.TerminationDate,
+    ->     e.EmploymentType,
+    ->     p.Name
+    -> FROM
+    ->     Employment e
+    -> JOIN
+    ->     Person p ON e.PersonID = p.PersonID
+    -> WHERE
+    ->     e.TerminationDate IS NULL;
+Query OK, 0 rows affected (0.02 sec)
+
+mysql> CREATE VIEW EmploymentHistory AS
+    -> SELECT
+    ->     e.EmploymentID,
+    ->     p.Name,
+    ->     e.EmploymentDate,
+    ->     e.TerminationDate,
+    ->     e.EmploymentType
+    -> FROM
+    ->     Employment e
+    -> JOIN
+    ->     Person p ON e.PersonID = p.PersonID;
+Query OK, 0 rows affected (0.02 sec)
+
+
+TRIGGERS:
+Insert Trigger:
+mysql> DELIMITER //
+mysql>
+mysql> CREATE TRIGGER AfterInsertEmployment
+    -> AFTER INSERT ON Employment
+    -> FOR EACH ROW
+    -> BEGIN
+    ->     DECLARE v_bonus_amount DECIMAL(10, 2);
+    ->     IF NEW.EmploymentType = 'PERMANENT' THEN
+    ->         SET v_bonus_amount = NEW.Bonus * 0.10;  -- 10% bonus for permanent employment
+    ->     ELSE
+    ->         SET v_bonus_amount = NEW.Bonus * 0.05;   -- 5% bonus for part-time
+    ->     END IF;
+    ->
+    ->     -- You could log this, store it, or manipulate other tables as necessary
+    ->     -- Example: Just for demonstration, you may want to keep it in a log table
+    ->     -- INSERT INTO BonusLog (EmploymentID, BonusAmount) VALUES (NEW.EmploymentID, v_bonus_amount);
+    -> END;
+    ->
+    -> //
+Query OK, 0 rows affected (0.04 sec)
+
+Update Trigger:
+mysql> CREATE TRIGGER BeforeUpdateEmployment
+    -> BEFORE UPDATE ON Employment
+    -> FOR EACH ROW
+    -> BEGIN
+    ->   IF NEW.TerminationDate IS NOT NULL THEN
+    ->     SET NEW.Bonus = 0.00;  -- Reset bonus if employment is terminated
+    ->   END IF;
+    -> END;
+    -> //
+Query OK, 0 rows affected (0.02 sec)
+
+Delete Trigger:
+mysql> CREATE TRIGGER BeforeDeletePerson
+    -> BEFORE DELETE ON Person
+    -> FOR EACH ROW
+    -> BEGIN
+    ->   DELETE FROM Employment WHERE PersonID = OLD.PersonID;  -- Clean up employment records
+    -> END;
+    -> //
+Query OK, 0 rows affected (0.02 sec)
+
+
+FUNCTIONS:
+Function for Total Employee Bonus:
+mysql> DELIMITER //
+mysql>
+mysql> CREATE FUNCTION GetTotalBonus(empID INT)
+    -> RETURNS DECIMAL(10, 2)
+    -> DETERMINISTIC  -- or you can use READS SQL DATA if you prefer
+    -> BEGIN
+    ->     DECLARE totalBonus DECIMAL(10, 2);
+    ->     SELECT SUM(Bonus) INTO totalBonus FROM Employment WHERE PersonID = empID;
+    ->     RETURN totalBonus;
+    -> END;
+    ->
+    -> //
+Query OK, 0 rows affected (0.02 sec)
+
+Function for Number of Positions Held:
+mysql> DELIMITER //
+mysql>
+mysql> CREATE FUNCTION GetPositionsHeld(empID INT)
+    -> RETURNS INT
+    -> DETERMINISTIC  -- You can also use READS SQL DATA instead
+    -> BEGIN
+    ->     DECLARE numPositions INT;
+    ->     SELECT COUNT(*) INTO numPositions FROM PositionAssignment WHERE EmploymentID IN (SELECT EmploymentID FROM Employment WHERE PersonID = empID);
+    ->     RETURN numPositions;
+    -> END;
+    ->
+    -> //
+Query OK, 0 rows affected (0.02 sec)
+
+
+STORED PROCEDURES:
+Stored Procedure to Retrieve Active Employees:
+mysql> DELIMITER //
+mysql>
+mysql> CREATE PROCEDURE GetActiveEmployees()
+    -> READS SQL DATA
+    -> BEGIN
+    ->   SELECT * FROM Person
+    ->   JOIN Employment ON Person.PersonID = Employment.PersonID
+    ->   WHERE Employment.TerminationDate IS NULL;
+    -> END;
+    -> //
+Query OK, 0 rows affected (0.02 sec)
+
+Stored Procedure to Insert New Employment:
+mysql> DELIMITER //
+mysql>
+mysql> CREATE PROCEDURE InsertNewEmployment (
+    ->     IN p_PersonID INT,
+    ->     IN p_OrgID INT,
+    ->     IN p_EmploymentDate DATE,
+    ->     IN p_Bonus DECIMAL(10, 2),
+    ->     IN p_EmploymentType ENUM('Permanent', 'Part-Time')
+    -> )
+    -> MODIFIES SQL DATA
+    -> BEGIN
+    ->     INSERT INTO Employment (PersonID, OrgID, EmploymentDate, Bonus, EmploymentType)
+    ->     VALUES (p_PersonID, p_OrgID, p_EmploymentDate, p_Bonus, p_EmploymentType);
+    -> END;
+    -> //
+Query OK, 0 rows affected (0.01 sec)
+
+
+
+Creating USERS and Granting PRIVILEGES:
+mysql> CREATE USER 'FASO'@'localhost' IDENTIFIED BY 'FASO2025';
+    -> GRANT SELECT, INSERT ON TT_HOLDINGS.* TO 'FASO'@'localhost';
+    ->
+    -> CREATE USER 'MASOABI'@'localhost' IDENTIFIED BY 'MASOABI2025';
+    -> GRANT SELECT, UPDATE ON TT_HOLDINGS.* TO 'MASOABI'@'localhost';
+    -> ;
+    -> //
+Query OK, 0 rows affected (0.04 sec)
+
+mysql> SHOW GRANTS FOR 'FASO'@'localhost';
+    -> //
++---------------------------------------------------------------+
+| Grants for FASO@localhost                                     |
++---------------------------------------------------------------+
+| GRANT USAGE ON *.* TO `FASO`@`localhost`                      |
+| GRANT SELECT, INSERT ON `tt_holdings`.* TO `FASO`@`localhost` |
++---------------------------------------------------------------+
+2 rows in set (0.00 sec)
+
+mysql> SHOW GRANTS FOR 'MASOABI'@'localhost';
+    -> //
++------------------------------------------------------------------+
+| Grants for MASOABI@localhost                                     |
++------------------------------------------------------------------+
+| GRANT USAGE ON *.* TO `MASOABI`@`localhost`                      |
+| GRANT SELECT, UPDATE ON `tt_holdings`.* TO `MASOABI`@`localhost` |
++------------------------------------------------------------------+
+2 rows in set (0.00 sec)
+
+
+mysql> SELECT * FROM information_schema.USER_PRIVILEGES;
+    -> //
++--------------------------------+---------------+------------------------------+--------------+
+| GRANTEE                        | TABLE_CATALOG | PRIVILEGE_TYPE               | IS_GRANTABLE |
++--------------------------------+---------------+------------------------------+--------------+
+| 'CAREER'@'localhost'           | def           | USAGE                        | NO           |
+| 'mysql.infoschema'@'localhost' | def           | SELECT                       | NO           |
+| 'mysql.infoschema'@'localhost' | def           | AUDIT_ABORT_EXEMPT           | NO           |
+| 'mysql.infoschema'@'localhost' | def           | FIREWALL_EXEMPT              | NO           |
+| 'mysql.infoschema'@'localhost' | def           | SYSTEM_USER                  | NO           |
+| 'mysql.session'@'localhost'    | def           | SHUTDOWN                     | NO           |
+| 'mysql.session'@'localhost'    | def           | SUPER                        | NO           |
+| 'mysql.session'@'localhost'    | def           | AUDIT_ABORT_EXEMPT           | NO           |
+| 'mysql.session'@'localhost'    | def           | AUTHENTICATION_POLICY_ADMIN  | NO           |
+| 'mysql.session'@'localhost'    | def           | BACKUP_ADMIN                 | NO           |
+| 'mysql.session'@'localhost'    | def           | CLONE_ADMIN                  | NO           |
+| 'mysql.session'@'localhost'    | def           | CONNECTION_ADMIN             | NO           |
+| 'mysql.session'@'localhost'    | def           | FIREWALL_EXEMPT              | NO           |
+| 'mysql.session'@'localhost'    | def           | PERSIST_RO_VARIABLES_ADMIN   | NO           |
+| 'mysql.session'@'localhost'    | def           | SESSION_VARIABLES_ADMIN      | NO           |
+| 'mysql.session'@'localhost'    | def           | SYSTEM_USER                  | NO           |
+| 'mysql.session'@'localhost'    | def           | SYSTEM_VARIABLES_ADMIN       | NO           |
+| 'mysql.sys'@'localhost'        | def           | USAGE                        | NO           |
+| 'mysql.sys'@'localhost'        | def           | AUDIT_ABORT_EXEMPT           | NO           |
+| 'mysql.sys'@'localhost'        | def           | FIREWALL_EXEMPT              | NO           |
+| 'mysql.sys'@'localhost'        | def           | SYSTEM_USER                  | NO           |
+| 'root'@'localhost'             | def           | SELECT                       | YES          |
+| 'root'@'localhost'             | def           | INSERT                       | YES          |
+| 'root'@'localhost'             | def           | UPDATE                       | YES          |
+| 'root'@'localhost'             | def           | DELETE                       | YES          |
+| 'root'@'localhost'             | def           | CREATE                       | YES          |
+| 'root'@'localhost'             | def           | DROP                         | YES          |
+| 'root'@'localhost'             | def           | RELOAD                       | YES          |
+| 'root'@'localhost'             | def           | SHUTDOWN                     | YES          |
+| 'root'@'localhost'             | def           | PROCESS                      | YES          |
+| 'root'@'localhost'             | def           | FILE                         | YES          |
+| 'root'@'localhost'             | def           | REFERENCES                   | YES          |
+| 'root'@'localhost'             | def           | INDEX                        | YES          |
+| 'root'@'localhost'             | def           | ALTER                        | YES          |
+| 'root'@'localhost'             | def           | SHOW DATABASES               | YES          |
+| 'root'@'localhost'             | def           | SUPER                        | YES          |
+| 'root'@'localhost'             | def           | CREATE TEMPORARY TABLES      | YES          |
+| 'root'@'localhost'             | def           | LOCK TABLES                  | YES          |
+| 'root'@'localhost'             | def           | EXECUTE                      | YES          |
+| 'root'@'localhost'             | def           | REPLICATION SLAVE            | YES          |
+| 'root'@'localhost'             | def           | REPLICATION CLIENT           | YES          |
+| 'root'@'localhost'             | def           | CREATE VIEW                  | YES          |
+| 'root'@'localhost'             | def           | SHOW VIEW                    | YES          |
+| 'root'@'localhost'             | def           | CREATE ROUTINE               | YES          |
+| 'root'@'localhost'             | def           | ALTER ROUTINE                | YES          |
+| 'root'@'localhost'             | def           | CREATE USER                  | YES          |
+| 'root'@'localhost'             | def           | EVENT                        | YES          |
+| 'root'@'localhost'             | def           | TRIGGER                      | YES          |
+| 'root'@'localhost'             | def           | CREATE TABLESPACE            | YES          |
+| 'root'@'localhost'             | def           | CREATE ROLE                  | YES          |
+| 'root'@'localhost'             | def           | DROP ROLE                    | YES          |
+| 'root'@'localhost'             | def           | ALLOW_NONEXISTENT_DEFINER    | YES          |
+| 'root'@'localhost'             | def           | APPLICATION_PASSWORD_ADMIN   | YES          |
+| 'root'@'localhost'             | def           | AUDIT_ABORT_EXEMPT           | YES          |
+| 'root'@'localhost'             | def           | AUDIT_ADMIN                  | YES          |
+| 'root'@'localhost'             | def           | AUTHENTICATION_POLICY_ADMIN  | YES          |
+| 'root'@'localhost'             | def           | BACKUP_ADMIN                 | YES          |
+| 'root'@'localhost'             | def           | BINLOG_ADMIN                 | YES          |
+| 'root'@'localhost'             | def           | BINLOG_ENCRYPTION_ADMIN      | YES          |
+| 'root'@'localhost'             | def           | CLONE_ADMIN                  | YES          |
+| 'root'@'localhost'             | def           | CONNECTION_ADMIN             | YES          |
+| 'root'@'localhost'             | def           | ENCRYPTION_KEY_ADMIN         | YES          |
+| 'root'@'localhost'             | def           | FIREWALL_EXEMPT              | YES          |
+| 'root'@'localhost'             | def           | FLUSH_OPTIMIZER_COSTS        | YES          |
+| 'root'@'localhost'             | def           | FLUSH_STATUS                 | YES          |
+| 'root'@'localhost'             | def           | FLUSH_TABLES                 | YES          |
+| 'root'@'localhost'             | def           | FLUSH_USER_RESOURCES         | YES          |
+| 'root'@'localhost'             | def           | GROUP_REPLICATION_ADMIN      | YES          |
+| 'root'@'localhost'             | def           | GROUP_REPLICATION_STREAM     | YES          |
+| 'root'@'localhost'             | def           | INNODB_REDO_LOG_ARCHIVE      | YES          |
+| 'root'@'localhost'             | def           | INNODB_REDO_LOG_ENABLE       | YES          |
+| 'root'@'localhost'             | def           | PASSWORDLESS_USER_ADMIN      | YES          |
+| 'root'@'localhost'             | def           | PERSIST_RO_VARIABLES_ADMIN   | YES          |
+| 'root'@'localhost'             | def           | REPLICATION_APPLIER          | YES          |
+| 'root'@'localhost'             | def           | REPLICATION_SLAVE_ADMIN      | YES          |
+| 'root'@'localhost'             | def           | RESOURCE_GROUP_ADMIN         | YES          |
+| 'root'@'localhost'             | def           | RESOURCE_GROUP_USER          | YES          |
+| 'root'@'localhost'             | def           | ROLE_ADMIN                   | YES          |
+| 'root'@'localhost'             | def           | SENSITIVE_VARIABLES_OBSERVER | YES          |
+| 'root'@'localhost'             | def           | SERVICE_CONNECTION_ADMIN     | YES          |
+| 'root'@'localhost'             | def           | SESSION_VARIABLES_ADMIN      | YES          |
+| 'root'@'localhost'             | def           | SET_ANY_DEFINER              | YES          |
+| 'root'@'localhost'             | def           | SHOW_ROUTINE                 | YES          |
+| 'root'@'localhost'             | def           | SYSTEM_USER                  | YES          |
+| 'root'@'localhost'             | def           | SYSTEM_VARIABLES_ADMIN       | YES          |
+| 'root'@'localhost'             | def           | TABLE_ENCRYPTION_ADMIN       | YES          |
+| 'root'@'localhost'             | def           | TELEMETRY_LOG_ADMIN          | YES          |
+| 'root'@'localhost'             | def           | TRANSACTION_GTID_TAG         | YES          |
+| 'root'@'localhost'             | def           | XA_RECOVER_ADMIN             | YES          |
+| 'FASO'@'localhost'             | def           | USAGE                        | NO           |
+| 'MASOABI'@'localhost'          | def           | USAGE                        | NO           |
++--------------------------------+---------------+------------------------------+--------------+
+91 rows in set (0.01 sec)
+
+
+mysql> SELECT User, Host FROM mysql.user;
+    -> //
++------------------+-----------+
+| User             | Host      |
++------------------+-----------+
+| CAREER           | localhost |
+| FASO             | localhost |
+| MASOABI          | localhost |
+| mysql.infoschema | localhost |
+| mysql.session    | localhost |
+| mysql.sys        | localhost |
+| root             | localhost |
++------------------+-----------+
+7 rows in set (0.00 sec)
